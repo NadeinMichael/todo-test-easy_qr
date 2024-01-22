@@ -16,6 +16,14 @@ export const getAllTodo = async (req, res) => {
 };
 
 export const getTodo = async (req, res) => {
+  // check if valid mongo id
+  if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid todo id',
+    });
+  }
+
   try {
     const todo = await Todo.findById(req.params.id);
 
@@ -83,7 +91,7 @@ export const updateTodo = async (req, res) => {
 
 export const deleteTodo = async (req, res) => {
   try {
-    const todo = await Todo.findById(req.params.id);
+    const todo = await Todo.findByIdAndDelete(req.params.id);
 
     if (!todo) {
       return res.status(400).json({
@@ -92,7 +100,6 @@ export const deleteTodo = async (req, res) => {
       });
     }
 
-    await todo.remove();
     res.status(200).json({
       success: true,
       data: {},
