@@ -1,8 +1,10 @@
 import Todo from '../models/Todo.js';
 
 export const getAllTodo = async (req, res) => {
+  const userId = req.userId;
+
   try {
-    const allTodo = await Todo.find();
+    const allTodo = await Todo.find({ userId });
     res.status(200).json({
       success: true,
       data: allTodo,
@@ -47,8 +49,10 @@ export const getTodo = async (req, res) => {
 };
 
 export const createTodo = async (req, res) => {
+  const userId = req.userId;
+
   try {
-    const todo = await Todo.create(req.body);
+    const todo = await Todo.create({ ...req.body, userId });
     res.status(201).json({
       success: true,
       data: todo,
