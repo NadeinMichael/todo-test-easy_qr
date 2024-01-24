@@ -1,12 +1,14 @@
-import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+import { defaultFormValues } from '../../constants';
+import useControlInputs from '../../hooks/useControlInputs';
+import CommonButton from '../../components/UI/CommonButton';
+
 const CreateTodo = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [status, setStatus] = useState('await');
+  const { values, setValues, handleChange } =
+    useControlInputs(defaultFormValues);
 
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -14,27 +16,19 @@ const CreateTodo = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const todo = {
-      title,
-      description,
-      status,
-    };
-
     const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/todo`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${user}`,
       },
-      body: JSON.stringify(todo),
+      body: JSON.stringify(values),
     });
 
     const data = await res.json();
 
     if (data.success) {
-      setTitle('');
-      setDescription('');
-      setStatus('await');
+      setValues(defaultFormValues);
       toast.success('Todo created');
       navigate('/todo-page');
     }
@@ -51,34 +45,29 @@ const CreateTodo = () => {
           type='text'
           placeholder='Title'
           name='title'
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={values.title}
+          onChange={(e) => handleChange(e)}
           className='bg-gray-100 px-4 py-2 rounded-md'
         />
         <input
           type='text'
           placeholder='Description'
           name='description'
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={values.description}
+          onChange={(e) => handleChange(e)}
           className='bg-gray-100 px-4 py-2 rounded-md'
         />
         <select
           name='status'
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
+          value={values.status}
+          onChange={(e) => handleChange(e)}
           className='bg-gray-100 px-4 py-2 rounded-md'
         >
           <option value='await'>Await</option>
-          <option value='progress'>In progress</option>
+          <option value='In progress'>In progress</option>
           <option value='done'>Done</option>
         </select>
-        <button
-          type='submit'
-          className='bg-blue-500 text-white px-4 py-2 rounded-md'
-        >
-          Create Todo
-        </button>
+        <CommonButton text='Create Todo' />
       </form>
     </div>
   );

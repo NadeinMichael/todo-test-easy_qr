@@ -3,11 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'react-toastify';
 
+import { defaultFormValues } from '../../constants';
+import useControlInputs from '../../hooks/useControlInputs';
+import CommonButton from '../../components/UI/CommonButton';
+
 const UpdateTodo = () => {
   const [loading, setLoading] = useState(true);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [status, setStatus] = useState('await');
+
+  const { values, setValues, handleChange } =
+    useControlInputs(defaultFormValues);
 
   const { id } = useParams();
   const { user } = useAuth();
@@ -15,12 +19,6 @@ const UpdateTodo = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const todo = {
-      title,
-      description,
-      status,
-    };
 
     const res = await fetch(
       `${import.meta.env.VITE_API_BASE_URL}/api/todo/${id}`,
@@ -30,16 +28,14 @@ const UpdateTodo = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${user}`,
         },
-        body: JSON.stringify(todo),
+        body: JSON.stringify(values),
       }
     );
 
     const data = await res.json();
 
     if (data.success) {
-      setTitle('');
-      setDescription('');
-      setStatus('await');
+      setValues(defaultFormValues);
       toast.success('Todo updated');
       navigate('/todo-page');
     }
@@ -65,9 +61,12 @@ const UpdateTodo = () => {
     setLoading(false);
 
     if (data.success) {
-      setTitle(data.data.title);
-      setDescription(data.data.description);
-      setStatus(data.data.status);
+      console.log(data.data);
+      setValues({
+        title: data.data.title,
+        description: data.data.description,
+        status: data.data.status,
+      });
     }
   };
 
@@ -86,34 +85,29 @@ const UpdateTodo = () => {
           type='text'
           placeholder='Title'
           name='title'
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={values.title}
+          onChange={(e) => handleChange(e)}
           className='bg-gray-100 px-4 py-2 rounded-md'
         />
         <input
           type='text'
           placeholder='Description'
           name='description'
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={values.description}
+          onChange={(e) => handleChange(e)}
           className='bg-gray-100 px-4 py-2 rounded-md'
         />
         <select
           name='status'
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
+          value={values.status}
+          onChange={(e) => handleChange(e)}
           className='bg-gray-100 px-4 py-2 rounded-md'
         >
           <option value='await'>Await</option>
-          <option value='progress'>In progress</option>
+          <option value='In progress'>In progress</option>
           <option value='done'>Done</option>
         </select>
-        <button
-          type='submit'
-          className='bg-blue-500 text-white px-4 py-2 rounded-md'
-        >
-          Update Todo
-        </button>
+        <CommonButton text='Update Todo' />
       </form>
     </div>
   );

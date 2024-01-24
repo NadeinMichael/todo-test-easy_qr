@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import { useAuth } from '../../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+
+import CommonButton from '../../components/UI/CommonButton';
+import Todo from '../../components/Todo';
 
 const TodoPage = () => {
   const [todoList, setTodoList] = useState([]);
@@ -24,8 +26,6 @@ const TodoPage = () => {
     );
 
     const data = await res.json();
-
-    setTodoList(todoList.filter((todo) => todo._id !== id));
 
     if (data.success) {
       toast.success('Todo deleted');
@@ -51,49 +51,27 @@ const TodoPage = () => {
 
   useEffect(() => {
     getAllTodo();
-  }, []);
+  }, [todoList]);
 
   if (loading) {
-    return <h1 className=''>Loading...</h1>;
+    return <h1 className='text-3xl text-center'>Loading...</h1>;
   }
 
   return (
     <div className='flex flex-col gap-4 items-center min-h-screen justify-around'>
       {todoList.length === 0 && <h1 className='text-3xl'>No todo found</h1>}
-      <div className='w-full flex gap-4 flex-wrap px-5'>
+      <ul className='flex gap-4 flex-wrap px-5'>
         {todoList.map((todo) => (
-          <div
+          <Todo
             key={todo._id}
-            className='flex flex-col gap-4 p-4 items-center justify-center min-w-fit min-h-fit bg-gray-300 rounded-md '
-          >
-            <h2 className='text-2xl font-bold'>{todo.title}</h2>
-            <p className='text-xl'>{todo.description}</p>
-            <p className='text-xl'>{todo.status}</p>
-            <button>
-              <Link
-                to={`/todo-page/update/${todo._id}`}
-                className='bg-blue-500 text-white px-4 py-2 rounded-md'
-              >
-                Update Todo
-              </Link>
-            </button>
-            <button
-              className='bg-blue-500 text-white px-4 py-2 rounded-md'
-              onClick={() => handleDeleteTodo(todo._id)}
-            >
-              Delete Todo
-            </button>
-          </div>
+            todo={todo}
+            handleDeleteTodo={handleDeleteTodo}
+          />
         ))}
-      </div>
-      <button>
-        <Link
-          to='/todo-page/create'
-          className='bg-blue-500 text-white px-4 py-2 rounded-md'
-        >
-          Create Todo
-        </Link>
-      </button>
+      </ul>
+      <CommonButton>
+        <Link to='/todo-page/create'>Create Todo</Link>
+      </CommonButton>
     </div>
   );
 };
