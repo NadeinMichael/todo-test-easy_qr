@@ -10,10 +10,10 @@ const index = ({ todo, handleDeleteTodo }) => {
       <p className='text-xl'>Status: {todo.status}</p>
       <div className='flex gap-2'>
         <CommonButton>
-          <Link to={`/todo-page/update/${todo._id}`}>Update Todo</Link>
+          <Link to={`/todo-page/update/${todo._id}`}>Update</Link>
         </CommonButton>
         <CommonButton
-          text='Delete Todo'
+          text='Delete'
           type='button'
           onClick={() => handleDeleteTodo(todo._id)}
         />
